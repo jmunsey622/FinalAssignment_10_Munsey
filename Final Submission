@@ -1,0 +1,77 @@
+# Get requests
+import requests
+
+# Method that request the data and returns the results
+def getData(zipCode=None, cityName=None):
+   
+    # URL for Open Weather Map
+    base_Url = "http://api.openweathermap.org/data/2.5/weather"
+    # My API key
+    api_key = '23550ab0a8e8a2fc5ccf4359f6b783c4'
+    # Determins whether the usre entered a zip code or city name
+    if zipCode is not None:
+       # Sets the URL for the zip code
+        base_Url += "?zip="+str(zipCode)+"&units=imperial"
+        
+    else:
+        # Sets the URL for the city
+        base_Url += "?q="+str(cityName)+"&units=imperial"
+    
+    # Sets the URL associated with the request
+    user_Url = base_Url +"&appid=" + api_key 
+   # Assigns the responce to variable response
+    response = requests.get(user_Url)
+   # returns the response data
+    return response
+
+# Method to determine if response is valid
+def result(response):
+    # If connection was succesful weather data is displayed
+    if response.status_code == 200:
+        data = response.json()
+        print('Succesfully connected to the server')
+        print(data['name'])
+        print(f"""{data['name']} Weather Forecast:
+        There will be {data['weather'][0]['description']} with wind speed of {data['wind']['speed']}.
+        Visibility will be {data['visibility']}.
+        Min. Temp will be {data['main']['temp_min']} and max will be {data['main']['temp_max']}.
+        """)
+    # If response is not a valid zip/city message is displayed
+    else:
+        print("Invalid entry, zip code or city not found: error code ",response.status_code)
+# Main method
+def main():
+    # Enables repeated user input
+    while True:
+        # Prompts user for input
+        prompt =int(input("Your options :\n1. By Zip Code\n2. By City Name\n3. Exit\n"))
+        if prompt == 1:
+            # User chose zip code search
+            try:
+                queryData = int(input("Enter zip code : "))
+                
+                response = getData(queryData,None)
+                result(response)
+            # Alerts user that connection failed    
+            except Exception as ex:
+                print("Error, Connection Failed :",ex)
+        # User chose city search
+        elif prompt == 2:
+            try:
+                queryData = input("Enter city name : ")
+             
+                response = getData(None,queryData)
+                result(response)
+            # Alerts user that connection failed
+            except Exception as ex:
+                print("Error, Connection Failed : ",ex)
+        # User chose to exit search
+        elif prompt == 3:
+            break
+        # Alerts user that their input was invalid
+        else:
+            print("Invalid Choice..\n")
+
+if __name__=="__main__":
+  
+    main()
